@@ -1,5 +1,5 @@
 /**
- * Deviation Vector Analysis (Equations 1-2 from Mathematical Model)
+ * Deviation Vector Analysis (Equation 1 from Math-7 Model)
  * 
  * Computes D = P - S, applies tolerance vector ε,
  * and flags non-compliant parameters where d_i > ε_i.

@@ -388,7 +388,7 @@
 
         try {
             const params = {};
-            const fields = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'flow_rate'];
+            const fields = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'flow_rate', 'pathogens'];
             for (const f of fields) {
                 params[f] = parseFloat($(`#sim-${f}`).value) || 0;
             }
@@ -413,7 +413,7 @@
             const dashboard = await api('/api/tech/dashboard');
             if (dashboard.reading) {
                 const r = dashboard.reading;
-                const fields = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'flow_rate'];
+                const fields = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'flow_rate', 'pathogens'];
                 for (const f of fields) {
                     if (r[f] !== undefined) $(`#sim-${f}`).value = r[f];
                 }
@@ -458,8 +458,18 @@
             if (result.sizing.uf_area_m2) {
                 html += `<div class="result-row"><span class="label">UF Area</span><span class="value">${result.sizing.uf_area_m2} m²</span></div>`;
             }
+            if (result.sizing.membrane_uf) {
+                html += `<div class="result-row"><span class="label">UF Area (Darcy)</span><span class="value">${result.sizing.membrane_uf.area_m2} m² (flux: ${result.sizing.membrane_uf.flux_m3_m2_h} m³/m²·h)</span></div>`;
+            }
             if (result.sizing.ro_area_m2) {
                 html += `<div class="result-row"><span class="label">RO Area</span><span class="value">${result.sizing.ro_area_m2} m²</span></div>`;
+            }
+            if (result.sizing.membrane_ro) {
+                html += `<div class="result-row"><span class="label">RO Area (Darcy)</span><span class="value">${result.sizing.membrane_ro.area_m2} m² (flux: ${result.sizing.membrane_ro.flux_m3_m2_h} m³/m²·h)</span></div>`;
+            }
+            if (result.sizing.uv) {
+                html += `<div class="result-row"><span class="label">UV Dose Required</span><span class="value">${result.sizing.uv.dose_mJ_cm2} mJ/cm²</span></div>`;
+                html += `<div class="result-row"><span class="label">UV Log Reduction</span><span class="value">${result.sizing.uv.log_reduction}-log</span></div>`;
             }
             html += '</div>';
         }
@@ -470,6 +480,9 @@
         html += `<div class="result-row"><span class="label">Aeration</span><span class="value">${e.components_kW.aeration} kW</span></div>`;
         html += `<div class="result-row"><span class="label">Pumps</span><span class="value">${e.components_kW.pumps} kW</span></div>`;
         html += `<div class="result-row"><span class="label">Membranes</span><span class="value">${e.components_kW.membranes} kW</span></div>`;
+        if (e.components_kW.uv !== undefined) {
+            html += `<div class="result-row"><span class="label">UV Disinfection</span><span class="value">${e.components_kW.uv} kW</span></div>`;
+        }
         html += `<div class="result-row"><span class="label">Auxiliary</span><span class="value">${e.components_kW.auxiliary} kW</span></div>`;
         html += `<div class="result-row"><span class="label">Total Power</span><span class="value">${e.total_power_kW} kW</span></div>`;
         html += `<div class="result-row"><span class="label">SEC</span><span class="value">${e.sec_kWh_per_m3} kWh/m³</span></div>`;

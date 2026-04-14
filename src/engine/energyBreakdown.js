@@ -1,9 +1,9 @@
 /**
- * Energy Breakdown (Equations 7-9 from Mathematical Model)
+ * Energy Breakdown (Equations 8-10 from Math-7 Model)
  * 
- * SEC = P_total / V
- * P_total = P_aeration + P_pumps + P_membranes + P_auxiliary
- * P_pump = (ρ·g·Q·H) / η
+ * Eq 8:  SEC = P_total / V
+ * Eq 9:  P_total = P_aeration + P_pumps + P_membranes + P_UV + P_auxiliary
+ * Eq 10: P_pump = (ρ·g·Q·H) / η
  */
 
 /**
@@ -35,13 +35,13 @@ function computePumpPower(rho, g, Q, H, eta) {
 
 /**
  * Compute total power from component breakdown.
- * P_total = P_aeration + P_pumps + P_membranes + P_auxiliary
- * @param {Object} components - { aeration, pumps, membranes, auxiliary } in kW
+ * P_total = P_aeration + P_pumps + P_membranes + P_UV + P_auxiliary
+ * @param {Object} components - { aeration, pumps, membranes, uv, auxiliary } in kW
  * @returns {number} Total power in kW
  */
 function computeTotalPower(components) {
-    const { aeration = 0, pumps = 0, membranes = 0, auxiliary = 0 } = components;
-    return aeration + pumps + membranes + auxiliary;
+    const { aeration = 0, pumps = 0, membranes = 0, uv = 0, auxiliary = 0 } = components;
+    return aeration + pumps + membranes + uv + auxiliary;
 }
 
 module.exports = { computeSEC, computePumpPower, computeTotalPower };

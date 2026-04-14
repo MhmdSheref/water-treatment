@@ -1,5 +1,5 @@
 /**
- * Multi-Objective Optimization (Equation 10 from Mathematical Model)
+ * Multi-Objective Optimization (Equation 11 from Math-7 Model)
  * 
  * min Z = α·Cost(x) + β·SEC(x) − γ·NutrientRecovery(x)
  * Subject to: P_new(x) ≤ S + ε
@@ -67,6 +67,15 @@ const DEFAULT_CANDIDATES = [
         sec: 0.05,
         nutrientRecovery: 0.6,
         removal: { BOD: 0.70, COD: 0.60, TSS: 0.80, TN: 0.50, TP: 0.40 }
+    },
+    {
+        id: 'uv_disinfection',
+        name: 'UV Disinfection System',
+        type: 'quaternary',
+        cost: 120000,
+        sec: 0.3,
+        nutrientRecovery: 0.0,
+        removal: { BOD: 0.05, COD: 0.05, TSS: 0.02, TN: 0.02, TP: 0.01, pathogens: 0.9999 }
     }
 ];
 

@@ -71,7 +71,7 @@ function getDb() {
             ['weight_Na', '0.10', 'AHP weight for Na in WQI'],
             ['weight_heavy_metals', '0.08', 'AHP weight for heavy metals in WQI'],
 
-            // Engineering parameters (Appendix A defaults)
+            // Engineering parameters (Appendix A defaults — Math-7 Model)
             ['k_BOD', '0.5', 'First-order decay constant for BOD (h^-1), range 0.3-0.8'],
             ['membrane_flux_UF', '0.03', 'UF membrane flux (m3/m2·h), range 0.02-0.04'],
             ['membrane_flux_RO', '0.02', 'RO membrane flux (m3/m2·h)'],
@@ -79,6 +79,21 @@ function getDb() {
             ['operating_hours', '20', 'Operating hours per day for membranes'],
             ['fluid_density', '1000', 'Fluid density (kg/m3)'],
             ['gravity', '9.81', 'Gravitational acceleration (m/s2)'],
+
+            // UV Disinfection parameters (Eq. 6 — Chick-Watson, EPA [5])
+            ['k_UV', '0.2', 'UV inactivation rate constant (cm2/mJ), range 0.15-0.30'],
+            ['uv_lamp_efficiency', '0.3', 'UV lamp electrical efficiency (fraction)'],
+            ['standards_pathogens', '200', 'Pathogen limit (CFU/100mL) - Egyptian Code for Ag. Reuse'],
+            ['lod_pathogens', '1', 'Pathogen Limit of Detection (CFU/100mL)'],
+
+            // Darcy's Law membrane parameters (Eq. 7)
+            ['darcy_deltaP_UF', '200000', 'UF transmembrane pressure (Pa), ~2 bar'],
+            ['darcy_deltaP_RO', '1500000', 'RO transmembrane pressure (Pa), ~15 bar'],
+            ['darcy_deltaPi_UF', '0', 'UF osmotic pressure difference (Pa), ~0 for UF'],
+            ['darcy_deltaPi_RO', '700000', 'RO osmotic pressure difference (Pa), ~7 bar'],
+            ['darcy_viscosity', '0.001', 'Dynamic viscosity of water (Pa·s) at 20°C'],
+            ['darcy_Rt_UF', '1.85e12', 'UF total membrane resistance (m^-1)'],
+            ['darcy_Rt_RO', '1.04e13', 'RO total membrane resistance (m^-1)'],
 
             // Optimization weights (alpha + beta + gamma = 1)
             ['opt_alpha', '0.4', 'Cost weight in MILP optimization'],

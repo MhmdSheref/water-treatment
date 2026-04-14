@@ -1,5 +1,5 @@
 /**
- * Water Quality Index (Equation 3 from Mathematical Model)
+ * Water Quality Index (Equations 2-3 from Math-7 Model)
  * 
  * WQI = W^T · Q = Σ(w_i × q_i) where q_i = (C_i / S_i) × 100
  * Higher WQI = poorer water quality (values > 100 indicate exceedance).

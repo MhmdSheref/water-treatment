@@ -25,7 +25,8 @@ const BASELINE = {
     temperature: { mean: 25, stddev: 3, min: 15, max: 40 },
     EC: { mean: 2.5, stddev: 0.5, min: 0.5, max: 6.0 },
     Na: { mean: 180, stddev: 40, min: 50, max: 400 },
-    heavy_metals: { mean: 0.08, stddev: 0.03, min: 0.01, max: 0.5 }
+    heavy_metals: { mean: 0.08, stddev: 0.03, min: 0.01, max: 0.5 },
+    pathogens: { mean: 5000, stddev: 2000, min: 100, max: 20000 }
 };
 
 /**
@@ -60,13 +61,13 @@ function generateReading() {
 function storeReading(reading) {
     const db = getDb();
     const stmt = db.prepare(`
-        INSERT INTO sensor_readings (pH, BOD, COD, TSS, TN, TP, flow_rate, temperature, EC, Na, heavy_metals, source)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO sensor_readings (pH, BOD, COD, TSS, TN, TP, flow_rate, temperature, EC, Na, heavy_metals, pathogens, source)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const result = stmt.run(
         reading.pH, reading.BOD, reading.COD, reading.TSS,
         reading.TN, reading.TP, reading.flow_rate, reading.temperature,
-        reading.EC, reading.Na, reading.heavy_metals,
+        reading.EC, reading.Na, reading.heavy_metals, reading.pathogens,
         process.env.SENSOR_MODE || 'placeholder'
     );
     return result.lastInsertRowid;

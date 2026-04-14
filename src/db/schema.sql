@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS sensor_readings (
     EC REAL,
     Na REAL,
     heavy_metals REAL,
+    pathogens REAL,
     source TEXT DEFAULT 'placeholder'
 );
 

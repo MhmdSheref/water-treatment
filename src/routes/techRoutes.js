@@ -30,7 +30,7 @@ function loadConfig() {
     const standards = {};
     const lod = {};
     const weights = {};
-    const params = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals'];
+    const params = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'pathogens'];
 
     for (const p of params) {
         if (config[`standards_${p}`] !== undefined) standards[p] = config[`standards_${p}`];
@@ -63,7 +63,8 @@ router.get('/dashboard', (req, res) => {
             TP: latest.TP,
             EC: latest.EC,
             Na: latest.Na,
-            heavy_metals: latest.heavy_metals
+            heavy_metals: latest.heavy_metals,
+            pathogens: latest.pathogens
         };
 
         // Run deviation analysis
@@ -157,7 +158,8 @@ router.get('/suggestions', (req, res) => {
             TP: latest.TP,
             EC: latest.EC,
             Na: latest.Na,
-            heavy_metals: latest.heavy_metals
+            heavy_metals: latest.heavy_metals,
+            pathogens: latest.pathogens
         };
 
         const deviation = computeDeviation(concentrations, standards, lod);
@@ -214,7 +216,8 @@ router.get('/alerts', (req, res) => {
             TP: latest.TP,
             EC: latest.EC,
             Na: latest.Na,
-            heavy_metals: latest.heavy_metals
+            heavy_metals: latest.heavy_metals,
+            pathogens: latest.pathogens
         };
 
         const deviation = computeDeviation(concentrations, standards, lod);

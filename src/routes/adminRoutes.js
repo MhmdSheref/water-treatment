@@ -1,6 +1,16 @@
 /**
  * Admin Routes
  * All routes require admin role.
+ * 
+ * Updated to Math-7 Model equations:
+ *   Eq 1: Deviation Vector
+ *   Eq 2-3: WQI
+ *   Eq 4: Removal Efficiency
+ *   Eq 5: Reactor Sizing (HRT)
+ *   Eq 6: UV Disinfection (Chick-Watson) — NEW
+ *   Eq 7: Membrane Sizing (Darcy's Law) — UPDATED
+ *   Eq 8-10: Energy Breakdown
+ *   Eq 11: MILP Optimization
  */
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
@@ -8,8 +18,9 @@ const { getDb } = require('../db/init');
 const { authenticate, authorize } = require('../middleware/auth');
 const { computeDeviation } = require('../engine/deviationVector');
 const { computeWQI } = require('../engine/waterQualityIndex');
-const { computeEfficiency, computeHRT, computeReactorVolume, computeMembraneArea } = require('../engine/removalEfficiency');
+const { computeEfficiency, computeHRT, computeReactorVolume, computeMembraneArea, computeMembraneFlux, computeMembraneAreaDarcy } = require('../engine/removalEfficiency');
 const { computeSEC, computePumpPower, computeTotalPower } = require('../engine/energyBreakdown');
+const { computeUVDose, computeUVPower } = require('../engine/uvDisinfection');
 const { optimizeUpgrade } = require('../engine/optimizer');
 const { getRecommendations } = require('../engine/recommendations');
 
@@ -32,7 +43,7 @@ function loadConfig() {
     const standards = {};
     const lod = {};
     const weights = {};
-    const params = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals'];
+    const params = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'pathogens'];
 
     for (const p of params) {
         if (config[`standards_${p}`] !== undefined) standards[p] = config[`standards_${p}`];
@@ -45,6 +56,7 @@ function loadConfig() {
 
 /**
  * Run the full analysis pipeline on given plant data.
+ * Implements Algorithm 1 from Math-7 Model.
  */
 function runFullAnalysis(plantData, configOverrides) {
     const { config, standards, lod, weights } = loadConfig();
@@ -54,10 +66,10 @@ function runFullAnalysis(plantData, configOverrides) {
     const activeLod = { ...lod, ...configOverrides?.lod };
     const activeWeights = { ...weights, ...configOverrides?.weights };
 
-    // 1. Deviation Vector (Equations 1-2)
+    // 1. Deviation Vector (Equation 1)
     const deviation = computeDeviation(plantData, activeStandards, activeLod);
 
-    // 2. Water Quality Index (Equation 3)
+    // 2. Water Quality Index (Equations 2-3)
     const wqi = computeWQI(plantData, activeStandards, activeWeights);
 
     // 3. Removal Efficiency (Equation 4)
@@ -72,43 +84,102 @@ function runFullAnalysis(plantData, configOverrides) {
         }
     }
 
-    // 4. Reactor Sizing (Equations 5-6)
+    // 4. Reactor Sizing — Equation 5 (biological) + Equation 6 (UV) + Equation 7 (membranes)
     const sizing = {};
     const flowRate = plantData.flow_rate || 500;
     const k = config.k_BOD || 0.5;
-    const J_UF = config.membrane_flux_UF || 0.03;
-    const J_RO = config.membrane_flux_RO || 0.02;
-    const Oh = config.operating_hours || 20;
+
+    // Darcy's Law membrane parameters (Equation 7)
+    const darcy = {
+        UF: {
+            deltaP: parseFloat(config.darcy_deltaP_UF) || 200000,
+            deltaPi: parseFloat(config.darcy_deltaPi_UF) || 0,
+            mu: parseFloat(config.darcy_viscosity) || 0.001,
+            Rt: parseFloat(config.darcy_Rt_UF) || 1.85e12
+        },
+        RO: {
+            deltaP: parseFloat(config.darcy_deltaP_RO) || 1500000,
+            deltaPi: parseFloat(config.darcy_deltaPi_RO) || 700000,
+            mu: parseFloat(config.darcy_viscosity) || 0.001,
+            Rt: parseFloat(config.darcy_Rt_RO) || 1.04e13
+        }
+    };
+
+    // UV parameters (Equation 6 — Chick-Watson)
+    const kUV = parseFloat(config.k_UV) || 0.2;
+    const uvLampEta = parseFloat(config.uv_lamp_efficiency) || 0.3;
 
     if (deviation.nonCompliantParams.length > 0) {
-        // Biological sizing for BOD
-        if (deviation.flags.BOD && plantData.BOD) {
-            const targetBOD = activeStandards.BOD;
-            const hrt = computeHRT(plantData.BOD, targetBOD, k);
+        // Biological sizing for BOD/COD (Equation 5)
+        if ((deviation.flags.BOD && plantData.BOD) || (deviation.flags.COD && plantData.COD)) {
+            const organicParam = deviation.flags.BOD ? 'BOD' : 'COD';
+            const cinOrg = plantData[organicParam];
+            const targetOrg = activeStandards[organicParam];
+            const hrt = computeHRT(cinOrg, targetOrg, k);
             const volume = computeReactorVolume(flowRate, hrt);
-            sizing.biological = { hrt_hours: hrt ? Math.round(hrt * 100) / 100 : null, reactor_volume_m3: volume ? Math.round(volume) : null };
+            sizing.biological = {
+                parameter: organicParam,
+                hrt_hours: hrt ? Math.round(hrt * 100) / 100 : null,
+                reactor_volume_m3: volume ? Math.round(volume) : null
+            };
         }
 
-        // Membrane sizing
+        // UV Disinfection sizing (Equation 6 — Chick-Watson)
+        if (deviation.flags.pathogens && plantData.pathogens) {
+            const N0 = plantData.pathogens;
+            const Nt = activeStandards.pathogens || 200;
+            const uvResult = computeUVDose(N0, Nt, kUV);
+            sizing.uv = {
+                initial_count: N0,
+                target_count: Nt,
+                dose_mJ_cm2: uvResult.dose_mJ_cm2,
+                log_reduction: uvResult.logReduction,
+                valid: uvResult.valid
+            };
+        }
+
+        // Membrane sizing using Darcy's Law (Equation 7: Jw = (ΔP - Δπ) / (μ·Rt), A = Q/Jw)
         if (deviation.flags.TSS || deviation.flags.EC || deviation.flags.Na) {
-            sizing.uf_area_m2 = computeMembraneArea(flowRate, J_UF, Oh) ? Math.round(computeMembraneArea(flowRate, J_UF, Oh)) : null;
-            sizing.ro_area_m2 = computeMembraneArea(flowRate, J_RO, Oh) ? Math.round(computeMembraneArea(flowRate, J_RO, Oh)) : null;
+            const ufResult = computeMembraneAreaDarcy(
+                flowRate, darcy.UF.deltaP, darcy.UF.deltaPi, darcy.UF.mu, darcy.UF.Rt
+            );
+            const roResult = computeMembraneAreaDarcy(
+                flowRate, darcy.RO.deltaP, darcy.RO.deltaPi, darcy.RO.mu, darcy.RO.Rt
+            );
+
+            sizing.membrane_uf = {
+                area_m2: ufResult.area_m2 ? Math.round(ufResult.area_m2) : null,
+                flux_m3_m2_h: ufResult.flux_m3_m2_h,
+                method: 'Darcy\'s Law (Eq. 7)'
+            };
+            sizing.membrane_ro = {
+                area_m2: roResult.area_m2 ? Math.round(roResult.area_m2) : null,
+                flux_m3_m2_h: roResult.flux_m3_m2_h,
+                method: 'Darcy\'s Law (Eq. 7)'
+            };
         }
     }
 
-    // 5. Energy Breakdown (Equations 7-9)
+    // 5. Energy Breakdown (Equations 8-10)
     const pumpEta = config.pump_efficiency || 0.70;
     const rho = config.fluid_density || 1000;
     const g = config.gravity || 9.81;
-    const dynamicHead = plantData._dynamic_head || 15; // meters, default
+    const dynamicHead = plantData._dynamic_head || 15;
 
     const flowRateM3s = flowRate / 3600;
-    const pumpPower = computePumpPower(rho, g, flowRateM3s, dynamicHead, pumpEta) / 1000; // Convert W to kW
+    const pumpPower = computePumpPower(rho, g, flowRateM3s, dynamicHead, pumpEta) / 1000; // W to kW
+
+    // UV power component (from Equation 6 sizing)
+    let uvPowerKW = 0;
+    if (sizing.uv && sizing.uv.dose_mJ_cm2) {
+        uvPowerKW = computeUVPower(sizing.uv.dose_mJ_cm2, flowRate, uvLampEta);
+    }
 
     const energyComponents = {
-        aeration: plantData._power_aeration || (flowRate * 0.02), // Estimate if not provided
+        aeration: plantData._power_aeration || (flowRate * 0.02),
         pumps: pumpPower,
-        membranes: sizing.uf_area_m2 ? (sizing.uf_area_m2 * 0.005) : 0,
+        membranes: sizing.membrane_uf?.area_m2 ? (sizing.membrane_uf.area_m2 * 0.005) : 0,
+        uv: uvPowerKW,
         auxiliary: plantData._power_auxiliary || (flowRate * 0.005)
     };
     const totalPower = computeTotalPower(energyComponents);
@@ -119,13 +190,14 @@ function runFullAnalysis(plantData, configOverrides) {
             aeration: Math.round(energyComponents.aeration * 100) / 100,
             pumps: Math.round(pumpPower * 100) / 100,
             membranes: Math.round(energyComponents.membranes * 100) / 100,
+            uv: Math.round(uvPowerKW * 100) / 100,
             auxiliary: Math.round(energyComponents.auxiliary * 100) / 100
         },
         total_power_kW: Math.round(totalPower * 100) / 100,
         sec_kWh_per_m3: sec
     };
 
-    // 6. Optimization (Equation 10)
+    // 6. Optimization (Equation 11)
     const optWeights = {
         alpha: config.opt_alpha || 0.4,
         beta: config.opt_beta || 0.35,
@@ -138,6 +210,7 @@ function runFullAnalysis(plantData, configOverrides) {
 
     return {
         timestamp: new Date().toISOString(),
+        modelVersion: 'Math-7',
         deviation,
         wqi,
         efficiencies,

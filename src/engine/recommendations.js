@@ -85,6 +85,17 @@ const RECOMMENDATION_MAP = {
             'Consider chelation or ion exchange for specific metals',
             'Implement source control and pretreatment requirements'
         ]
+    },
+    pathogens: {
+        category: 'Quaternary (UV)',
+        urgency: 'critical',
+        suggestions: [
+            'Install UV disinfection system sized using Chick-Watson law (Eq. 6)',
+            'Ensure upstream TSS removal to < 10 mg/L for effective UV penetration',
+            'Consider UV + chlorination combined approach for redundancy',
+            'Evaluate medium-pressure vs low-pressure UV lamp configuration',
+            'Size UV dose based on target log-reduction (typically 4-log for reuse)'
+        ]
     }
 };
 
