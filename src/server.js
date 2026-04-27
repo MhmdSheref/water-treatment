@@ -55,8 +55,13 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString(), sensorMode: process.env.SENSOR_MODE, sensorIntervalMs: parseInt(process.env.SENSOR_INTERVAL_MS) || 30000 });
 });
 
-// Fallback to index.html for SPA
-app.get('*', (req, res) => {
+// Dashboard SPA — serve dashboard index.html for /dashboard and any sub-routes
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'dashboard', 'index.html'));
+});
+
+// Landing page at root
+app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 

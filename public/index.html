@@ -3,370 +3,1395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Decision-Support Tool for municipal wastewater treatment plant monitoring, compliance analysis, and optimization">
-    <title>Water Purification DST — Decision Support Tool</title>
+    <meta name="description" content="A Decision-Support Tool for optimizing Egyptian wastewater treatment plants — enabling sustainable agricultural water reuse through data-driven analysis.">
+    <title>Water Purification DST — Decision Support for Wastewater Treatment</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ================================================================
+           Landing Page — Sleek & Minimal
+           ================================================================ */
+        :root {
+            --bg: #060a12;
+            --bg-surface: rgba(12, 18, 30, 0.6);
+            --border: rgba(80, 110, 160, 0.15);
+            --border-hover: rgba(80, 110, 160, 0.3);
+            --text: #e2e8f0;
+            --text-dim: #8a9bbd;
+            --text-muted: #556480;
+            --cyan: #06b6d4;
+            --blue: #3b82f6;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- Flow Field Canvas ---- */
+        #flow-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ---- Navigation ---- */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 10, 18, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .nav-brand svg {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+        }
+
+        .nav-brand-text {
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-family: var(--font);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-dim);
+            text-decoration: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-link--primary {
+            color: var(--cyan);
+            border-color: rgba(6, 182, 212, 0.25);
+            background: rgba(6, 182, 212, 0.06);
+        }
+
+        .nav-link--primary:hover {
+            background: rgba(6, 182, 212, 0.12);
+            border-color: rgba(6, 182, 212, 0.4);
+            color: #22d3ee;
+        }
+
+        .nav-link .arrow {
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+        }
+
+        .nav-link:hover .arrow {
+            transform: translateX(2px);
+        }
+
+        /* Mobile menu toggle */
+        .nav-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        /* ---- Content wrapper ---- */
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---- Hero ---- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 6rem;
+        }
+
+        .hero-inner {
+            max-width: 680px;
+            text-align: center;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-tag::before {
+            content: '';
+            display: block;
+            width: 24px;
+            height: 1px;
+            background: var(--cyan);
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.35s forwards;
+        }
+
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 1.05rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            max-width: 560px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.5s forwards;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.65s forwards;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(6, 182, 212, 0.25);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 24px rgba(6, 182, 212, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            border-color: var(--border-hover);
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            color: var(--text);
+            background: rgba(6, 182, 212, 0.06);
+        }
+
+        .btn .arrow {
+            font-size: 0.8rem;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover .arrow {
+            transform: translateX(3px);
+        }
+
+        .scroll-cue {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-family: var(--mono);
+            opacity: 0;
+            animation: fadeUp 0.8s ease 1s forwards;
+        }
+
+        .scroll-cue-line {
+            width: 1px;
+            height: 32px;
+            background: linear-gradient(to bottom, var(--text-muted), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        /* ---- Section ---- */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        .section-label {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-label::before {
+            content: '';
+            display: block;
+            width: 16px;
+            height: 1px;
+            background: var(--cyan);
+        }
+
+        .section h2 {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: var(--text-dim);
+            font-size: 1rem;
+            max-width: 600px;
+            margin-bottom: 3rem;
+            line-height: 1.7;
+        }
+
+        /* ---- Stat Row ---- */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 4rem;
+        }
+
+        .stat-item {
+            background: var(--bg);
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-number .unit {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        .stat-number.accent {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        /* ---- Feature grid ---- */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .feature {
+            background: var(--bg);
+            padding: 2rem;
+            transition: background 0.3s;
+        }
+
+        .feature:hover {
+            background: rgba(12, 18, 30, 0.8);
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            border-radius: 8px;
+        }
+
+        .feature h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+        }
+
+        .feature p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* ---- Case studies ---- */
+        .cases {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .case {
+            background: var(--bg);
+            padding: 2rem;
+        }
+
+        .case-name {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .case h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .case-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .case-stat {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+        }
+
+        .case-stat-label {
+            color: var(--text-muted);
+        }
+
+        .case-stat-value {
+            font-weight: 600;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+        }
+
+        .case-stat-value.good {
+            color: #22c55e;
+        }
+
+        /* ---- Team ---- */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .team-card {
+            background: var(--bg);
+            padding: 1.5rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .team-card:hover {
+            background: rgba(12, 18, 30, 0.8);
+        }
+
+        .team-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            overflow: hidden;
+            background: rgba(80, 110, 160, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .team-card:hover .team-avatar {
+            border-color: rgba(6, 182, 212, 0.35);
+        }
+
+        .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .team-avatar-placeholder {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: -0.03em;
+            user-select: none;
+        }
+
+        .team-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .team-role {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: var(--mono);
+            letter-spacing: 0.02em;
+        }
+
+        .team-supervisor {
+            margin-bottom: 1.5rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .team-supervisor-label {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .team-supervisor-name {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--cyan);
+            letter-spacing: -0.01em;
+        }
+
+        /* ---- Resources ---- */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .resources-grid--wide {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .resource {
+            background: var(--bg);
+            padding: 2rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: background 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .resource:hover {
+            background: rgba(12, 18, 30, 0.8);
+        }
+
+        .resource-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .resource-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .resource-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .resource-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .resource-action {
+            font-size: 0.8rem;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: auto;
+        }
+
+        .resource-action .arrow {
+            transition: transform 0.2s;
+        }
+
+        .resource:hover .resource-action .arrow {
+            transform: translateX(3px);
+        }
+
+        /* ---- Divider ---- */
+        .divider {
+            max-width: 960px;
+            margin: 0 auto;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ---- Footer ---- */
+        .footer {
+            padding: 3rem 2rem;
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-text {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text);
+        }
+
+        /* ---- Animations ---- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(1); }
+            50% { opacity: 0.8; transform: scaleY(1.3); }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 0 1.25rem;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: rgba(6, 10, 18, 0.95);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid var(--border);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0.25rem;
+                transform: translateY(-110%);
+                transition: transform 0.3s ease;
+            }
+
+            .nav-links.open {
+                transform: translateY(0);
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+
+            .hero {
+                padding: 7rem 1.5rem 4rem;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero-desc {
+                font-size: 0.95rem;
+            }
+
+            .section {
+                padding: 3.5rem 1.5rem;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+
+            .features,
+            .cases {
+                grid-template-columns: 1fr;
+            }
+
+            .resources-grid,
+            .resources-grid--wide {
+                grid-template-columns: 1fr;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .footer {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* ---- Scrollbar ---- */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(80, 110, 160, 0.25); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(80, 110, 160, 0.4); }
+    </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="login-screen" class="screen active">
-        <div class="login-container">
-            <div class="login-card">
-                <div class="login-header">
-                    <div class="logo-icon">
-                        <svg viewBox="0 0 48 48" fill="none">
-                            <circle cx="24" cy="24" r="22" stroke="url(#grad)" stroke-width="2.5" fill="none"/>
-                            <path d="M24 10 C24 10 14 22 14 28 C14 33.5 18.5 38 24 38 C29.5 38 34 33.5 34 28 C34 22 24 10 24 10Z" fill="url(#grad)" opacity="0.85"/>
-                            <defs>
-                                <linearGradient id="grad" x1="0" y1="0" x2="48" y2="48">
-                                    <stop offset="0%" stop-color="#06b6d4"/>
-                                    <stop offset="100%" stop-color="#3b82f6"/>
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                    <h1>Water Purification DST</h1>
-                    <p class="subtitle">Decision-Support Tool for Wastewater Treatment</p>
-                </div>
-                <form id="login-form" class="login-form">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" placeholder="Enter username" required autocomplete="username">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
-                    </div>
-                    <button type="submit" id="login-btn" class="btn btn-primary btn-full">Sign In</button>
-                    <p id="login-error" class="error-text"></p>
-                    <div class="login-hint">
-                        <p>Demo accounts: <code>admin / admin123</code> or <code>tech / tech123</code></p>
-                    </div>
-                </form>
+    <canvas id="flow-canvas"></canvas>
+
+    <div class="content">
+        <!-- Navigation -->
+        <nav class="nav" id="nav">
+            <a href="/" class="nav-brand">
+                <svg viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="14" stroke="url(#navGrad)" stroke-width="1.5" fill="none"/>
+                    <path d="M16 7 C16 7 10 15 10 19 C10 22.5 12.7 25.5 16 25.5 C19.3 25.5 22 22.5 22 19 C22 15 16 7 16 7Z" fill="url(#navGrad)" opacity="0.8"/>
+                    <defs>
+                        <linearGradient id="navGrad" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#06b6d4"/>
+                            <stop offset="100%" stop-color="#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="nav-brand-text">Water DST</span>
+            </a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">☰</button>
+            <div class="nav-links" id="nav-links">
+                <a href="#about" class="nav-link">About</a>
+                <a href="#methodology" class="nav-link">Methodology</a>
+                <a href="#results" class="nav-link">Results</a>
+                <a href="#resources" class="nav-link">Resources</a>
+                <a href="/dashboard" class="nav-link nav-link--primary">Dashboard <span class="arrow">→</span></a>
             </div>
-        </div>
+        </nav>
+
+        <!-- Hero -->
+        <section class="hero" id="hero">
+            <div class="hero-inner">
+                <div class="hero-tag">Cairo University · Faculty of Engineering</div>
+                <h1>Optimizing Wastewater Treatment for <span class="gradient-text">Egypt's Water Future</span></h1>
+                <p class="hero-desc">
+                    A dynamic Decision-Support Tool that evaluates, diagnoses, and optimizes
+                    municipal wastewater treatment plants for safe agricultural reuse — reducing
+                    operational costs by up to 35% and recovering 92% of influent water.
+                </p>
+                <div class="hero-actions">
+                    <a href="/dashboard" class="btn btn-primary" id="btn-dashboard">Open Dashboard <span class="arrow">→</span></a>
+                    <a href="#about" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+            <div class="scroll-cue">
+                <span>Scroll</span>
+                <div class="scroll-cue-line"></div>
+            </div>
+        </section>
+
+        <!-- About / Problem -->
+        <div class="divider"></div>
+        <section class="section" id="about">
+            <div class="reveal">
+                <div class="section-label">The Problem</div>
+                <h2>Egypt's Growing Water Crisis</h2>
+                <p class="section-desc">
+                    With per capita water availability plummeting from 2,000 m³/year in the 1960s to
+                    roughly 560 m³/year today, Egypt faces chronic water scarcity. Agriculture consumes
+                    80% of freshwater while traditional irrigation loses 30–40% of water volume.
+                </p>
+            </div>
+            <div class="stats-row reveal">
+                <div class="stat-item">
+                    <div class="stat-number accent">560 <span class="unit">m³/yr</span></div>
+                    <div class="stat-label">Per capita water availability</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number accent">80<span class="unit">%</span></div>
+                    <div class="stat-label">Freshwater consumed by agriculture</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number accent">120 <span class="unit">BCM</span></div>
+                    <div class="stat-label">Projected demand by 2050</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Methodology -->
+        <div class="divider"></div>
+        <section class="section" id="methodology">
+            <div class="reveal">
+                <div class="section-label">Methodology</div>
+                <h2>How the DST Works</h2>
+                <p class="section-desc">
+                    The tool integrates environmental engineering kinetics with multi-objective
+                    optimization to pinpoint bottlenecks and dynamically size hybrid treatment
+                    systems for Grade A compliance.
+                </p>
+            </div>
+            <div class="features reveal">
+                <div class="feature">
+                    <div class="feature-icon">Σ</div>
+                    <h3>Water Quality Index</h3>
+                    <p>Aggregates multiple parameters into a single WQI score using AHP-weighted quality ratings against Egyptian Code ECP 501-2015.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">Δ</div>
+                    <h3>Deviation Analysis</h3>
+                    <p>Computes the deviation vector D = P − S between plant readings and regulatory limits, with tolerance thresholds for measurement uncertainty.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">λ</div>
+                    <h3>Reactor & UV Sizing</h3>
+                    <p>First-order decay kinetics for biological reactor sizing and Chick-Watson law for UV disinfection dosage — translated into actionable engineering specs.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⊕</div>
+                    <h3>MILP Optimization</h3>
+                    <p>Mixed-Integer Linear Programming balances CAPEX, OPEX, energy consumption, and nutrient recovery to find the optimal upgrade strategy.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results / Case Studies -->
+        <div class="divider"></div>
+        <section class="section" id="results">
+            <div class="reveal">
+                <div class="section-label">Case Studies</div>
+                <h2>Validated on Real Egyptian Plants</h2>
+                <p class="section-desc">
+                    The DST was applied to two operational wastewater treatment plants in Egypt,
+                    demonstrating practical improvements under real-world conditions.
+                </p>
+            </div>
+            <div class="cases reveal">
+                <div class="case">
+                    <div class="case-name">Station 1</div>
+                    <h3>Zenin WWTP</h3>
+                    <div class="case-stats">
+                        <div class="case-stat">
+                            <span class="case-stat-label">Type</span>
+                            <span class="case-stat-value">Secondary Treatment</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">Primary Issue</span>
+                            <span class="case-stat-value">Pathogen Non-compliance</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">Solution</span>
+                            <span class="case-stat-value">UV Disinfection</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">UV Dose</span>
+                            <span class="case-stat-value good">29.8 mJ/cm²</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">Log Reduction</span>
+                            <span class="case-stat-value good">4.4-log</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="case">
+                    <div class="case-name">Station 2</div>
+                    <h3>Abu Rawash WWTP</h3>
+                    <div class="case-stats">
+                        <div class="case-stat">
+                            <span class="case-stat-label">Type</span>
+                            <span class="case-stat-value">Primary Treatment</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">Primary Issue</span>
+                            <span class="case-stat-value">Catastrophic Multi-param Failure</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">Solution</span>
+                            <span class="case-stat-value">Secondary + UV + Biogas</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">BOD Removal</span>
+                            <span class="case-stat-value good">96.8%</span>
+                        </div>
+                        <div class="case-stat">
+                            <span class="case-stat-label">Energy Recovery</span>
+                            <span class="case-stat-value good">768 MWh/day</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources -->
+        <div class="divider"></div>
+        <section class="section" id="resources">
+            <div class="reveal">
+                <div class="section-label">Resources</div>
+                <h2>Project Materials</h2>
+                <p class="section-desc">
+                    Access the live dashboard, source code, research poster, and full report.
+                </p>
+            </div>
+            <div class="resources-grid resources-grid--wide reveal">
+                <a href="/dashboard" class="resource" id="resource-dashboard">
+                    <span class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="4" rx="1"/><rect x="14" y="10" width="7" height="11" rx="1"/><rect x="3" y="13" width="7" height="8" rx="1"/></svg></span>
+                    <span class="resource-title">Live Dashboard</span>
+                    <span class="resource-desc">Real-time plant monitoring, WQI analysis, simulation engine, and optimization recommendations.</span>
+                    <span class="resource-action">Open <span class="arrow">→</span></span>
+                </a>
+                <a href="#" class="resource" id="resource-poster" target="_blank" rel="noopener">
+                    <span class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
+                    <span class="resource-title">Research Poster</span>
+                    <span class="resource-desc">Visual summary of our methodology, case study results, and key takeaways.</span>
+                    <span class="resource-action">View poster <span class="arrow">→</span></span>
+                </a>
+                <a href="#" class="resource" id="resource-report" target="_blank" rel="noopener">
+                    <span class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg></span>
+                    <span class="resource-title">Full Report</span>
+                    <span class="resource-desc">Complete technical report with literature review, mathematical modelling, and analysis.</span>
+                    <span class="resource-action">Read report <span class="arrow">→</span></span>
+                </a>
+                <a href="#" class="resource" id="resource-poster-refs" target="_blank" rel="noopener">
+                    <span class="resource-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg></span>
+                    <span class="resource-title">Poster References</span>
+                    <span class="resource-desc">Supporting references and citations used in the research poster.</span>
+                    <span class="resource-action">View references <span class="arrow">→</span></span>
+                </a>
+                <a href="#" class="resource" id="resource-realtime-repo" target="_blank" rel="noopener">
+                    <span class="resource-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg></span>
+                    <span class="resource-title">Realtime Dashboard Repo</span>
+                    <span class="resource-desc">Source code for the web-based real-time monitoring and decision-support dashboard.</span>
+                    <span class="resource-action">View on GitHub <span class="arrow">→</span></span>
+                </a>
+                <a href="#" class="resource" id="resource-matlab-repo" target="_blank" rel="noopener">
+                    <span class="resource-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.605-.015 2.896-.015 3.286 0 .315.21.694.825.576C20.565 21.795 24 17.295 24 12 24 5.37 18.63 0 12 0z"/></svg></span>
+                    <span class="resource-title">MATLAB Dashboard Repo</span>
+                    <span class="resource-desc">Source code for the MATLAB-based simulation and optimization dashboard.</span>
+                    <span class="resource-action">View on GitHub <span class="arrow">→</span></span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Team -->
+        <div class="divider"></div>
+        <section class="section" id="team">
+            <div class="reveal">
+                <div class="section-label">Team</div>
+                <h2>Project Team</h2>
+                <p class="section-desc">
+                    Faculty of Engineering, Cairo University.
+                </p>
+                <div class="team-supervisor">
+                    <span class="team-supervisor-label">Supervised by</span>
+                    <span class="team-supervisor-name">Prof. Samah El-Tantawy</span>
+                </div>
+                <div class="team-grid">
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">MA</span>
+                        </div>
+                        <span class="team-name">Mohamed Adel</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">KG</span>
+                        </div>
+                        <span class="team-name">Kareem Gamal</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">MS</span>
+                        </div>
+                        <span class="team-name">Mohamed Sheref</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">MK</span>
+                        </div>
+                        <span class="team-name">Menna Khaled</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">MH</span>
+                        </div>
+                        <span class="team-name">Malak Hassan</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">MA</span>
+                        </div>
+                        <span class="team-name">Mohammed Abbass</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">FM</span>
+                        </div>
+                        <span class="team-name">Fagr Mohamed</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-avatar">
+                            <span class="team-avatar-placeholder">MR</span>
+                        </div>
+                        <span class="team-name">Mohamed Rabia</span>
+                        <span class="team-role">Member</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div class="divider"></div>
+        <footer class="footer">
+            <span class="footer-text">© 2025 Water Purification DST — Cairo University, Faculty of Engineering</span>
+            <div class="footer-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="#about">About</a>
+                <a href="#resources">Resources</a>
+            </div>
+        </footer>
     </div>
 
-    <!-- Main App -->
-    <div id="app-screen" class="screen">
-        <!-- Top Navigation -->
-        <header class="top-bar">
-            <div class="top-bar-left">
-                <div class="logo-small">
-                    <svg viewBox="0 0 32 32" fill="none" width="28" height="28">
-                        <circle cx="16" cy="16" r="14" stroke="url(#grad2)" stroke-width="2" fill="none"/>
-                        <path d="M16 7 C16 7 10 15 10 19 C10 22.5 12.7 25.5 16 25.5 C19.3 25.5 22 22.5 22 19 C22 15 16 7 16 7Z" fill="url(#grad2)" opacity="0.85"/>
-                        <defs>
-                            <linearGradient id="grad2" x1="0" y1="0" x2="32" y2="32">
-                                <stop offset="0%" stop-color="#06b6d4"/>
-                                <stop offset="100%" stop-color="#3b82f6"/>
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-                <span class="app-title">Water DST</span>
-                <span class="app-title">Water DST <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem;"><a href="api-docs.html" target="_blank" style="color:inherit;">API Docs ↗</a></span></span>
-            </div>
-            <nav class="nav-tabs" id="nav-tabs">
-                <button class="nav-tab active" data-view="dashboard" id="nav-dashboard">Dashboard</button>
-                <button class="nav-tab" data-view="simulation" id="nav-simulation" style="display:none;">Simulation</button>
-                <button class="nav-tab" data-view="monitoring" id="nav-monitoring" style="display:none;">Monitoring</button>
-                <button class="nav-tab" data-view="logs" id="nav-logs" style="display:none;">Logs</button>
-                <button class="nav-tab" data-view="config" id="nav-config" style="display:none;">Config</button>
-            </nav>
-            <div class="top-bar-right">
-                <span id="user-badge" class="user-badge"></span>
-                <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
-            </div>
-        </header>
+    <script>
+    /* ================================================================
+       Flow Field — Water-wave simulation with trailing lines
+       ================================================================ */
+    (function () {
+        'use strict';
 
-        <!-- Dashboard View -->
-        <main id="view-dashboard" class="view active">
-            <div class="view-header">
-                <h2>Plant Dashboard</h2>
-                <div class="header-actions">
-                    <span id="dashboard-time" class="timestamp"></span>
-                    <button id="refresh-dashboard" class="btn btn-outline btn-sm">↻ Refresh</button>
-                </div>
-            </div>
+        const canvas = document.getElementById('flow-canvas');
+        const ctx = canvas.getContext('2d');
 
-            <div class="dashboard-grid">
-                <!-- WQI Card -->
-                <div class="card card-wqi" id="wqi-card">
-                    <div class="card-header"><h3>Water Quality Index</h3></div>
-                    <div class="card-body">
-                        <div class="wqi-display">
-                            <div class="wqi-circle" id="wqi-circle">
-                                <span class="wqi-value" id="wqi-value">--</span>
-                            </div>
-                            <span class="wqi-label" id="wqi-label">Loading...</span>
-                        </div>
-                    </div>
-                </div>
+        let W, H;
+        let mouse = { x: -9999, y: -9999, prevX: -9999, prevY: -9999 };
+        let mouseSpeed = 0;
+        let time = 0;
+        let particles = [];
+        let dpr = 1;
 
-                <!-- Compliance Card -->
-                <div class="card card-compliance" id="compliance-card">
-                    <div class="card-header"><h3>Compliance Status</h3></div>
-                    <div class="card-body">
-                        <div class="compliance-status" id="compliance-status">
-                            <div class="compliance-icon" id="compliance-icon">●</div>
-                            <span id="compliance-text">Checking...</span>
-                        </div>
-                        <div class="compliance-details" id="compliance-details"></div>
-                    </div>
-                </div>
+        const TRAIL_LENGTH = 12;  // number of past positions stored per particle
+        const PARTICLE_COUNT_BASE = 1600;
+        const MOBILE_PARTICLE_COUNT = 600;
+        let PARTICLE_COUNT = PARTICLE_COUNT_BASE;
+        const PARTICLE_LIFE_MIN = 120;
+        const PARTICLE_LIFE_MAX = 360;
+        const MOUSE_RADIUS = 280;
+        const MOUSE_STRENGTH = 3.5;
 
-                <!-- Current Readings Card -->
-                <div class="card card-readings card-wide">
-                    <div class="card-header"><h3>Current Sensor Readings</h3></div>
-                    <div class="card-body">
-                        <div class="readings-grid" id="readings-grid"></div>
-                    </div>
-                </div>
+        function isMobile() {
+            return window.innerWidth < 768;
+        }
 
-                <!-- Suggestions Card -->
-                <div class="card card-suggestions card-wide">
-                    <div class="card-header"><h3>Quick Suggestions</h3></div>
-                    <div class="card-body">
-                        <div id="suggestions-list" class="suggestions-list">
-                            <p class="muted">Loading suggestions...</p>
-                        </div>
-                    </div>
-                </div>
+        function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = window.innerWidth;
+            H = window.innerHeight;
+            canvas.width = W * dpr;
+            canvas.height = H * dpr;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-                <!-- Alerts Card -->
-                <div class="card card-alerts card-wide">
-                    <div class="card-header"><h3>Active Alerts</h3></div>
-                    <div class="card-body">
-                        <div id="alerts-list" class="alerts-list">
-                            <p class="muted">Checking for alerts...</p>
-                        </div>
-                    </div>
-                </div>
+            PARTICLE_COUNT = isMobile() ? MOBILE_PARTICLE_COUNT : PARTICLE_COUNT_BASE;
+            seedParticles();
+        }
 
-                <!-- Sensor Trends Chart Card (all roles) -->
-                <div class="card card-wide" id="trends-card">
-                    <div class="card-header trends-header">
-                        <div style="display:flex;align-items:center;gap:0.6rem;">
-                            <h3>Sensor Trends</h3>
-                            <span id="live-dot" class="live-dot" style="display:none;" title="Live updating">● LIVE</span>
-                        </div>
-                        <div class="timespan-toggle">
-                            <button class="ts-btn active" data-hours="1">1h</button>
-                            <button class="ts-btn" data-hours="6">6h</button>
-                            <button class="ts-btn" data-hours="24">24h</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="sensor-chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        function seedParticles() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(createParticle(true));
+            }
+        }
 
-        <!-- Simulation View (Admin only) -->
-        <main id="view-simulation" class="view">
-            <div class="view-header">
-                <h2>Simulation & Analysis</h2>
-            </div>
-            <div class="simulation-layout">
-                <div class="card sim-input-card">
-                    <div class="card-header"><h3>Plant Parameters</h3></div>
-                    <div class="card-body">
-                        <form id="sim-form">
-                            <div class="sim-grid">
-                                <div class="form-group">
-                                    <label for="sim-BOD">BOD (mg/L)</label>
-                                    <input type="number" id="sim-BOD" step="0.1" value="55" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-COD">COD (mg/L)</label>
-                                    <input type="number" id="sim-COD" step="0.1" value="110" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-TSS">TSS (mg/L)</label>
-                                    <input type="number" id="sim-TSS" step="0.1" value="50" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-TN">TN (mg/L)</label>
-                                    <input type="number" id="sim-TN" step="0.1" value="35" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-TP">TP (mg/L)</label>
-                                    <input type="number" id="sim-TP" step="0.1" value="9" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-EC">EC (dS/m)</label>
-                                    <input type="number" id="sim-EC" step="0.01" value="3.2" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-Na">Na (mg/L)</label>
-                                    <input type="number" id="sim-Na" step="1" value="250" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-heavy_metals">Heavy Metals (mg/L)</label>
-                                    <input type="number" id="sim-heavy_metals" step="0.001" value="0.12" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-flow_rate">Flow Rate (m³/h)</label>
-                                    <input type="number" id="sim-flow_rate" step="1" value="500" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sim-pathogens">Pathogens (CFU/100mL)</label>
-                                    <input type="number" id="sim-pathogens" step="1" value="5000" min="0">
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" id="run-sim-btn" class="btn btn-primary">Run Simulation</button>
-                                <button type="button" id="load-current-btn" class="btn btn-outline">Load Current Readings</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="card sim-result-card">
-                    <div class="card-header"><h3>Simulation Results</h3></div>
-                    <div class="card-body">
-                        <div id="sim-results" class="sim-results">
-                            <p class="muted">Configure parameters and run a simulation to see results.</p>
-                        </div>
-                    </div>
-                </div>
+        function createParticle(randomAge) {
+            const life = PARTICLE_LIFE_MIN + Math.random() * (PARTICLE_LIFE_MAX - PARTICLE_LIFE_MIN);
+            const x = Math.random() * W;
+            const y = Math.random() * H;
+            const trail = [];
+            for (let j = 0; j < TRAIL_LENGTH; j++) {
+                trail.push({ x: x, y: y });
+            }
+            return {
+                x: x,
+                y: y,
+                vx: 0,
+                vy: 0,
+                age: randomAge ? Math.random() * life : 0,
+                life: life,
+                width: 0.6 + Math.random() * 1.4,
+                trail: trail,
+                hueOffset: Math.random() * 30 - 15
+            };
+        }
 
-                <!-- Past Simulations -->
-                <div class="card card-wide">
-                    <div class="card-header"><h3>Simulation History</h3></div>
-                    <div class="card-body">
-                        <div id="sim-history" class="sim-history">
-                            <p class="muted">Loading history...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+        /* Multi-layered harmonic flow field — simulates water currents */
+        function flowAngle(x, y, t) {
+            const s1 = 0.0025;
+            const s2 = 0.0012;
+            const s3 = 0.004;
+            // Primary horizontal current with gentle wave
+            let angle = Math.sin(y * s1 + t * 0.35) * 0.6
+                      + Math.cos(x * s1 * 0.7 + t * 0.25) * 0.4
+                      + Math.sin((x + y) * s2 + t * 0.15) * 0.5;
+            // Deep undulating layer
+            angle += Math.sin(x * s2 * 0.5 - t * 0.12) * 0.35
+                   + Math.cos(y * s2 * 0.8 + t * 0.1) * 0.25;
+            // High-frequency ripple
+            angle += Math.sin(x * s3 + y * s3 * 0.6 + t * 0.5) * 0.15;
+            return angle;
+        }
 
-        <!-- Logs View (Admin only) -->
-        <main id="view-logs" class="view">
-            <div class="view-header">
-                <h2>System Logs</h2>
-                <div class="header-actions">
-                    <select id="log-filter" class="select-sm">
-                        <option value="">All Events</option>
-                        <option value="LOGIN">Logins</option>
-                        <option value="SIMULATION">Simulations</option>
-                        <option value="RECALCULATION">Recalculations</option>
-                        <option value="CONFIG_UPDATE">Config Changes</option>
-                    </select>
-                    <button id="refresh-logs" class="btn btn-outline btn-sm">↻ Refresh</button>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body">
-                    <table class="data-table" id="logs-table">
-                        <thead>
-                            <tr>
-                                <th>Timestamp</th>
-                                <th>User</th>
-                                <th>Event</th>
-                                <th>Details</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logs-tbody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+        function flowSpeed(x, y, t) {
+            return 0.5 + 0.35 * Math.sin(x * 0.003 + y * 0.002 + t * 0.2)
+                       + 0.15 * Math.cos(y * 0.004 - t * 0.15);
+        }
 
-        <!-- Monitoring View (Admin only) -->
-        <main id="view-monitoring" class="view">
-            <div class="view-header">
-                <h2>Sensor Monitoring</h2>
-            </div>
+        function update() {
+            time += 0.01;
 
-            <!-- Controls -->
-            <div class="card monitoring-controls-card">
-                <div class="card-body monitoring-controls">
-                    <div class="monitoring-range">
-                        <div class="form-group">
-                            <label for="mon-from">From</label>
-                            <input type="datetime-local" id="mon-from">
-                        </div>
-                        <div class="form-group">
-                            <label for="mon-to">To</label>
-                            <input type="datetime-local" id="mon-to">
-                        </div>
-                    </div>
-                    <div class="monitoring-params">
-                        <label class="params-label">Parameters</label>
-                        <div class="param-checkboxes" id="mon-param-checks">
-                            <label><input type="checkbox" value="BOD" checked> BOD</label>
-                            <label><input type="checkbox" value="COD" checked> COD</label>
-                            <label><input type="checkbox" value="TSS" checked> TSS</label>
-                            <label><input type="checkbox" value="TN"> TN</label>
-                            <label><input type="checkbox" value="TP"> TP</label>
-                            <label><input type="checkbox" value="pH"> pH</label>
-                            <label><input type="checkbox" value="EC"> EC</label>
-                            <label><input type="checkbox" value="Na"> Na</label>
-                            <label><input type="checkbox" value="heavy_metals"> Heavy Metals</label>
-                            <label><input type="checkbox" value="flow_rate"> Flow Rate</label>
-                            <label><input type="checkbox" value="temperature"> Temperature</label>
-                        </div>
-                    </div>
-                    <button id="mon-load-btn" class="btn btn-primary">Load Data</button>
-                </div>
-            </div>
+            // Track mouse speed for stronger interaction when moving fast
+            const mdx = mouse.x - mouse.prevX;
+            const mdy = mouse.y - mouse.prevY;
+            mouseSpeed = mouseSpeed * 0.85 + Math.sqrt(mdx * mdx + mdy * mdy) * 0.15;
+            mouse.prevX = mouse.x;
+            mouse.prevY = mouse.y;
 
-            <!-- Chart -->
-            <div class="card" style="margin-top:1rem;" id="mon-chart-card">
-                <div class="card-header">
-                    <h3>Trend Chart</h3>
-                    <span id="mon-chart-meta" style="font-size:0.8rem;color:var(--text-muted)"></span>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container chart-container-lg">
-                        <canvas id="monitoring-chart"></canvas>
-                    </div>
-                </div>
-            </div>
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                p.age++;
 
-            <!-- Stats Summary -->
-            <div class="card" style="margin-top:1rem;" id="mon-stats-card">
-                <div class="card-header"><h3>Statistics</h3></div>
-                <div class="card-body">
-                    <div id="mon-stats" class="mon-stats-grid"></div>
-                </div>
-            </div>
+                if (p.age > p.life || p.x < -40 || p.x > W + 40 || p.y < -40 || p.y > H + 40) {
+                    particles[i] = createParticle(false);
+                    continue;
+                }
 
-            <!-- Raw Data Table -->
-            <div class="card" style="margin-top:1rem;">
-                <div class="card-header">
-                    <h3>Raw Data</h3>
-                    <span id="mon-row-count" style="font-size:0.8rem;color:var(--text-muted)"></span>
-                </div>
-                <div class="card-body" style="overflow-x:auto;">
-                    <div id="mon-table-wrapper" class="mon-table-wrapper">
-                        <p class="muted">Select a date range and click Load Data.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
+                // Store current position in trail
+                p.trail.pop();
+                p.trail.unshift({ x: p.x, y: p.y });
 
-        <!-- Config View (Admin only) -->
-        <main id="view-config" class="view">
-            <div class="view-header">
-                <h2>System Configuration</h2>
-                <div class="header-actions">
-                    <button id="save-config" class="btn btn-primary btn-sm">Save Changes</button>
-                </div>
-            </div>
-            <div class="config-sections" id="config-sections"></div>
-        </main>
-    </div>
+                const angle = flowAngle(p.x, p.y, time);
+                const speed = flowSpeed(p.x, p.y, time);
+                let fx = Math.cos(angle) * speed;
+                let fy = Math.sin(angle) * speed;
 
-    <script src="app.js"></script>
+                // Mouse interaction — radial push + swirl
+                const dx = p.x - mouse.x;
+                const dy = p.y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < MOUSE_RADIUS && dist > 1) {
+                    const t = 1 - dist / MOUSE_RADIUS;
+                    const forceMult = t * t * MOUSE_STRENGTH;
+                    const speedBoost = 1 + Math.min(mouseSpeed * 0.03, 2);
+                    // Radial push away from cursor
+                    fx += (dx / dist) * forceMult * speedBoost;
+                    fy += (dy / dist) * forceMult * speedBoost;
+                    // Swirl tangent (water-like vortex)
+                    fx += (-dy / dist) * forceMult * 0.4;
+                    fy += (dx / dist) * forceMult * 0.4;
+                }
+
+                p.vx = p.vx * 0.9 + fx * 0.1;
+                p.vy = p.vy * 0.9 + fy * 0.1;
+                p.x += p.vx;
+                p.y += p.vy;
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            ctx.lineCap = 'round';
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const ageRatio = p.age / p.life;
+                let baseAlpha;
+                if (ageRatio < 0.1) {
+                    baseAlpha = ageRatio / 0.1;
+                } else if (ageRatio > 0.75) {
+                    baseAlpha = (1 - ageRatio) / 0.25;
+                } else {
+                    baseAlpha = 1;
+                }
+                baseAlpha *= 0.4;
+
+                if (baseAlpha < 0.01) continue;
+
+                const hue = 198 + p.hueOffset + Math.sin(p.x * 0.001 + time * 0.5) * 8;
+                const sat = 65 + Math.sin(p.y * 0.002) * 10;
+                const light = 52 + Math.sin(p.x * 0.003 + p.y * 0.001) * 12;
+
+                // Draw trail as a tapered line with fading opacity
+                ctx.beginPath();
+                ctx.moveTo(p.trail[0].x, p.trail[0].y);
+                for (let j = 1; j < p.trail.length; j++) {
+                    ctx.lineTo(p.trail[j].x, p.trail[j].y);
+                }
+
+                const trailAlpha = baseAlpha * 0.5;
+                ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${light}%, ${trailAlpha})`;
+                ctx.lineWidth = p.width * 0.5;
+                ctx.stroke();
+
+                // Draw head (brighter, slightly larger)
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.width * 0.8, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light + 10}%, ${baseAlpha * 0.7})`;
+                ctx.fill();
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Pointer handling
+        function onPointerMove(e) {
+            const touch = e.touches ? e.touches[0] : e;
+            mouse.x = touch.clientX;
+            mouse.y = touch.clientY;
+        }
+
+        function onPointerLeave() {
+            mouse.x = -9999;
+            mouse.y = -9999;
+        }
+
+        canvas.style.pointerEvents = 'auto';
+        canvas.addEventListener('mousemove', onPointerMove, { passive: true });
+        canvas.addEventListener('mouseleave', onPointerLeave);
+        canvas.addEventListener('touchmove', onPointerMove, { passive: true });
+        canvas.addEventListener('touchend', onPointerLeave);
+
+        window.addEventListener('resize', resize);
+        resize();
+        loop();
+
+        /* ================================================================
+           Scroll Reveal
+           ================================================================ */
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        reveals.forEach(el => observer.observe(el));
+
+        /* ================================================================
+           Mobile Nav Toggle
+           ================================================================ */
+        const toggle = document.getElementById('nav-toggle');
+        const navLinks = document.getElementById('nav-links');
+
+        toggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+
+        navLinks.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('open');
+            });
+        });
+
+        // Smooth-scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+    })();
+    </script>
 </body>
 </html>

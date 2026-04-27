@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Reference — Water Purification DST</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--bg2:#111827;--bg3:#1e293b;--border:rgba(99,124,171,0.2);--cyan:#06b6d4;--blue:#3b82f6;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--purple:#a855f7;--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;display:flex;min-height:100vh;}
+a{color:var(--cyan);text-decoration:none;}a:hover{text-decoration:underline;}
+
+/* Sidebar */
+nav{width:240px;min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);padding:1.5rem 0;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0;}
+.nav-logo{padding:0 1.2rem 1.2rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.nav-logo h1{font-size:0.95rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-logo p{font-size:0.72rem;color:var(--dim);margin-top:0.2rem;}
+nav ul{list-style:none;}
+nav ul li a{display:block;padding:0.35rem 1.2rem;font-size:0.82rem;color:var(--muted);transition:all 0.15s;}
+nav ul li a:hover{color:var(--text);text-decoration:none;background:rgba(255,255,255,0.03);}
+.nav-group{padding:0.6rem 1.2rem 0.2rem;font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}
+.nav-method{display:inline-block;font-size:0.6rem;font-weight:700;padding:0.1rem 0.35rem;border-radius:3px;margin-right:0.35rem;font-family:'JetBrains Mono',monospace;}
+.GET{background:rgba(34,197,94,0.15);color:var(--green);}
+.POST{background:rgba(59,130,246,0.15);color:var(--blue);}
+.PUT{background:rgba(234,179,8,0.15);color:var(--yellow);}
+
+/* Main content */
+main{flex:1;padding:2rem 2.5rem;max-width:900px;}
+.page-title{margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);}
+.page-title h2{font-size:1.8rem;font-weight:700;margin-bottom:0.5rem;}
+.page-title p{color:var(--muted);font-size:0.9rem;}
+
+/* Base URL */
+.base-url{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.8rem 1rem;margin-bottom:2rem;font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--cyan);}
+
+/* Auth note */
+.auth-note{background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:8px;padding:0.9rem 1.1rem;margin-bottom:2rem;font-size:0.85rem;color:var(--muted);}
+.auth-note strong{color:var(--purple);}
+
+/* Section */
+.section{margin-bottom:3rem;}
+.section-title{font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);margin-bottom:1.2rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
+
+/* Endpoint card */
+.endpoint{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:1.2rem;overflow:hidden;}
+.endpoint-head{display:flex;align-items:flex-start;gap:0.8rem;padding:1rem 1.2rem;cursor:pointer;user-select:none;}
+.endpoint-head:hover{background:rgba(255,255,255,0.02);}
+.method-badge{font-family:'JetBrains Mono',monospace;font-size:0.72rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:5px;white-space:nowrap;margin-top:0.15rem;flex-shrink:0;}
+.endpoint-info{flex:1;}
+.endpoint-path{font-family:'JetBrains Mono',monospace;font-size:0.9rem;font-weight:600;color:var(--text);}
+.endpoint-desc{font-size:0.82rem;color:var(--muted);margin-top:0.2rem;}
+.endpoint-body{padding:0 1.2rem 1.2rem;}
+
+/* Badges for role */
+.role-badge{font-size:0.65rem;font-weight:600;padding:0.1rem 0.5rem;border-radius:999px;display:inline-block;margin-left:0.5rem;}
+.role-any{background:rgba(6,182,212,0.12);color:var(--cyan);}
+.role-admin{background:rgba(168,85,247,0.12);color:var(--purple);}
+
+/* Params table */
+.params-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--dim);margin:0.8rem 0 0.4rem;}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;margin-bottom:0.5rem;}
+th{text-align:left;padding:0.4rem 0.6rem;color:var(--dim);font-weight:600;font-size:0.72rem;text-transform:uppercase;background:rgba(30,41,59,0.4);}
+td{padding:0.4rem 0.6rem;border-bottom:1px solid rgba(99,124,171,0.1);}
+td:first-child{font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:0.8rem;}
+td code{font-family:'JetBrains Mono',monospace;background:rgba(30,41,59,0.6);padding:0.1rem 0.3rem;border-radius:3px;font-size:0.78rem;}
+
+/* Code blocks */
+.code-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--dim);margin:0.8rem 0 0.3rem;}
+pre{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:0.78rem;line-height:1.7;color:#e6edf3;}
+.k{color:#ff7b72;}  /* keyword */
+.s{color:#a5d6ff;}  /* string */
+.c{color:#8b949e;}  /* comment */
+.n{color:#ffa657;}  /* number/var */
+.f{color:#d2a8ff;}  /* function */
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <h1>Water DST API</h1>
+    <p>v1.0 · REST · JSON</p>
+  </div>
+  <ul>
+    <li class="nav-group">General</li>
+    <li><a href="#health"><span class="nav-method GET">GET</span>Health</a></li>
+    <li class="nav-group">Auth</li>
+    <li><a href="#login"><span class="nav-method POST">POST</span>Login</a></li>
+    <li><a href="#me"><span class="nav-method GET">GET</span>Me</a></li>
+    <li class="nav-group">Technician</li>
+    <li><a href="#dashboard"><span class="nav-method GET">GET</span>Dashboard</a></li>
+    <li><a href="#readings"><span class="nav-method GET">GET</span>Readings</a></li>
+    <li><a href="#history"><span class="nav-method GET">GET</span>History (chart)</a></li>
+    <li><a href="#suggestions"><span class="nav-method GET">GET</span>Suggestions</a></li>
+    <li><a href="#alerts"><span class="nav-method GET">GET</span>Alerts</a></li>
+    <li class="nav-group">Admin</li>
+    <li><a href="#simulate"><span class="nav-method POST">POST</span>Simulate</a></li>
+    <li><a href="#simulations"><span class="nav-method GET">GET</span>Simulations</a></li>
+    <li><a href="#sim-id"><span class="nav-method GET">GET</span>Simulation by ID</a></li>
+    <li><a href="#recalculate"><span class="nav-method POST">POST</span>Recalculate</a></li>
+    <li><a href="#admin-readings"><span class="nav-method GET">GET</span>Readings (range)</a></li>
+    <li><a href="#logs"><span class="nav-method GET">GET</span>Logs</a></li>
+    <li><a href="#config-get"><span class="nav-method GET">GET</span>Config</a></li>
+    <li><a href="#config-put"><span class="nav-method PUT">PUT</span>Config</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div class="page-title">
+    <h2>API Reference</h2>
+    <p>Water Purification Decision-Support Tool — complete endpoint documentation with integration examples.</p>
+  </div>
+
+  <div class="base-url">http://localhost:3000</div>
+
+  <div class="auth-note">
+    <strong>Authentication:</strong> All endpoints except <code>/api/auth/login</code> and <code>/api/health</code> require a JWT Bearer token.<br>
+    Obtain a token from <code>POST /api/auth/login</code> and include it as:<br>
+    <code>Authorization: Bearer &lt;token&gt;</code>
+  </div>
+
+  <!-- ===== GENERAL ===== -->
+  <div class="section">
+    <div class="section-title">General</div>
+
+    <div class="endpoint" id="health">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/health</div>
+          <div class="endpoint-desc">Server health check. Returns sensor mode and collection interval. No auth required.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example Request</div>
+<pre><span class="f">fetch</span>(<span class="s">'/api/health'</span>)
+  .<span class="f">then</span>(r =&gt; r.<span class="f">json</span>())
+  .<span class="f">then</span>(console.<span class="f">log</span>);</pre>
+        <div class="code-label">Response</div>
+<pre>{
+  <span class="s">"status"</span>: <span class="s">"ok"</span>,
+  <span class="s">"timestamp"</span>: <span class="s">"2026-03-18T12:00:00.000Z"</span>,
+  <span class="s">"sensorMode"</span>: <span class="s">"placeholder"</span>,
+  <span class="s">"sensorIntervalMs"</span>: <span class="n">30000</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AUTH ===== -->
+  <div class="section">
+    <div class="section-title">Authentication</div>
+
+    <div class="endpoint" id="login">
+      <div class="endpoint-head">
+        <span class="method-badge POST">POST</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/auth/login</div>
+          <div class="endpoint-desc">Obtain a JWT token. Token expires in 24 h.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Request Body</div>
+        <table><thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>username</td><td>string</td><td>✓</td><td>User's username</td></tr>
+          <tr><td>password</td><td>string</td><td>✓</td><td>User's password</td></tr>
+        </tbody></table>
+        <div class="code-label">Example Request</div>
+<pre><span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/auth/login'</span>, {
+  method: <span class="s">'POST'</span>,
+  headers: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> },
+  body: <span class="f">JSON.stringify</span>({ username: <span class="s">'admin'</span>, password: <span class="s">'admin123'</span> })
+});
+<span class="k">const</span> { token, user } = <span class="k">await</span> res.<span class="f">json</span>();
+<span class="c">// Store token for subsequent requests</span></pre>
+        <div class="code-label">Response</div>
+<pre>{
+  <span class="s">"token"</span>: <span class="s">"eyJhbGci..."</span>,
+  <span class="s">"user"</span>: { <span class="s">"id"</span>: <span class="n">1</span>, <span class="s">"username"</span>: <span class="s">"admin"</span>, <span class="s">"role"</span>: <span class="s">"admin"</span> }
+}</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="me">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/auth/me <span class="role-badge role-any">any role</span></div>
+          <div class="endpoint-desc">Returns the currently authenticated user's profile.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example Request</div>
+<pre><span class="k">const</span> res = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/auth/me'</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+});
+<span class="k">const</span> { user } = <span class="k">await</span> res.<span class="f">json</span>();</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TECHNICIAN ===== -->
+  <div class="section">
+    <div class="section-title">Technician Endpoints</div>
+
+    <div class="endpoint" id="dashboard">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/tech/dashboard <span class="role-badge role-any">technician · admin</span></div>
+          <div class="endpoint-desc">Live plant status: latest sensor reading, WQI score, and compliance flags. Also persists compliance log entries.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example Request</div>
+<pre><span class="k">const</span> data = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/tech/dashboard'</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+
+console.<span class="f">log</span>(data.wqi.score);         <span class="c">// e.g. 87</span>
+console.<span class="f">log</span>(data.compliance.overall); <span class="c">// true / false</span>
+console.<span class="f">log</span>(data.reading.BOD);        <span class="c">// mg/L</span></pre>
+        <div class="code-label">Response Shape</div>
+<pre>{
+  <span class="s">"timestamp"</span>: <span class="s">"2026-03-18T12:00:00Z"</span>,
+  <span class="s">"reading"</span>: { <span class="s">"pH"</span>: <span class="n">7.2</span>, <span class="s">"BOD"</span>: <span class="n">45</span>, <span class="s">"COD"</span>: <span class="n">90</span>, <span class="s">"TSS"</span>: <span class="n">38</span>, <span class="c">/* ... */</span> },
+  <span class="s">"compliance"</span>: {
+    <span class="s">"overall"</span>: <span class="k">true</span>,
+    <span class="s">"nonCompliantCount"</span>: <span class="n">0</span>,
+    <span class="s">"flags"</span>: { <span class="s">"BOD"</span>: <span class="k">false</span>, <span class="s">"COD"</span>: <span class="k">false</span> <span class="c">/* ... */</span> }
+  },
+  <span class="s">"wqi"</span>: { <span class="s">"score"</span>: <span class="n">87</span>, <span class="s">"interpretation"</span>: <span class="s">"Good"</span> }
+}</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="readings">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/tech/readings <span class="role-badge role-any">technician · admin</span></div>
+          <div class="endpoint-desc">Recent sensor readings in descending order (newest first). Useful for listing history.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Query Parameters</div>
+        <table><thead><tr><th>Param</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>hours</td><td><code>24</code></td><td>How many hours back to fetch</td></tr>
+          <tr><td>limit</td><td><code>100</code></td><td>Maximum rows returned</td></tr>
+        </tbody></table>
+        <div class="code-label">Example</div>
+<pre><span class="c">// Last 6 hours, max 50 rows</span>
+<span class="k">const</span> { readings } = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/tech/readings?hours=6&amp;limit=50'</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="history">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/tech/readings/history <span class="role-badge role-any">technician · admin</span></div>
+          <div class="endpoint-desc">Readings in <strong>ascending</strong> chronological order — designed for feeding directly into Chart.js or time-series graphs.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Query Parameters</div>
+        <table><thead><tr><th>Param</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>hours</td><td><code>1</code></td><td>Timespan in hours</td></tr>
+          <tr><td>limit</td><td><code>120</code></td><td>Max data points</td></tr>
+        </tbody></table>
+        <div class="code-label">Chart.js Integration Example</div>
+<pre><span class="k">const</span> { readings } = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/tech/readings/history?hours=6&amp;limit=120'</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+
+<span class="k">new</span> <span class="f">Chart</span>(ctx, {
+  type: <span class="s">'line'</span>,
+  data: {
+    labels: readings.<span class="f">map</span>(r =&gt; <span class="k">new</span> <span class="f">Date</span>(r.timestamp).<span class="f">toLocaleTimeString</span>()),
+    datasets: [{
+      label: <span class="s">'BOD (mg/L)'</span>,
+      data: readings.<span class="f">map</span>(r =&gt; r.BOD)
+    }]
+  }
+});</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="suggestions">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/tech/suggestions <span class="role-badge role-any">technician · admin</span></div>
+          <div class="endpoint-desc">Actionable treatment suggestions based on the latest deviation analysis.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Response Shape</div>
+<pre>{
+  <span class="s">"suggestions"</span>: [
+    {
+      <span class="s">"parameter"</span>: <span class="s">"BOD"</span>,
+      <span class="s">"urgency"</span>: <span class="s">"high"</span>,
+      <span class="s">"action"</span>: <span class="s">"Increase aeration rate in biological reactor"</span>
+    }
+  ],
+  <span class="s">"analysisTimestamp"</span>: <span class="s">"2026-03-18T12:00:00Z"</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="alerts">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/tech/alerts <span class="role-badge role-any">technician · admin</span></div>
+          <div class="endpoint-desc">Active compliance alerts with severity classification (critical / warning / info).</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Response Shape</div>
+<pre>{
+  <span class="s">"alerts"</span>: [
+    {
+      <span class="s">"parameter"</span>: <span class="s">"TSS"</span>,
+      <span class="s">"measured"</span>: <span class="n">62</span>,
+      <span class="s">"limit"</span>: <span class="n">40</span>,
+      <span class="s">"deviation"</span>: <span class="n">22</span>,
+      <span class="s">"severity"</span>: <span class="s">"critical"</span>,
+      <span class="s">"timestamp"</span>: <span class="s">"2026-03-18T12:00:00Z"</span>
+    }
+  ]
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN ===== -->
+  <div class="section">
+    <div class="section-title">Admin Endpoints</div>
+
+    <div class="endpoint" id="simulate">
+      <div class="endpoint-head">
+        <span class="method-badge POST">POST</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/simulate <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">Runs the full analysis pipeline (Deviation, WQI, Reactor Sizing, Energy, MILP Optimization) on provided plant data. Result is persisted to the database.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Request Body — Plant Parameters</div>
+        <table><thead><tr><th>Field</th><th>Unit</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>BOD</td><td>mg/L</td><td>Biochemical Oxygen Demand</td></tr>
+          <tr><td>COD</td><td>mg/L</td><td>Chemical Oxygen Demand</td></tr>
+          <tr><td>TSS</td><td>mg/L</td><td>Total Suspended Solids</td></tr>
+          <tr><td>TN</td><td>mg/L</td><td>Total Nitrogen</td></tr>
+          <tr><td>TP</td><td>mg/L</td><td>Total Phosphorus</td></tr>
+          <tr><td>EC</td><td>dS/m</td><td>Electrical Conductivity</td></tr>
+          <tr><td>Na</td><td>mg/L</td><td>Sodium</td></tr>
+          <tr><td>heavy_metals</td><td>mg/L</td><td>Heavy metals concentration</td></tr>
+          <tr><td>flow_rate</td><td>m³/h</td><td>Plant flow rate</td></tr>
+        </tbody></table>
+        <div class="code-label">Example Request</div>
+<pre><span class="k">const</span> result = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/admin/simulate'</span>, {
+  method: <span class="s">'POST'</span>,
+  headers: {
+    <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span>,
+    <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span>
+  },
+  body: <span class="f">JSON.stringify</span>({
+    BOD: <span class="n">55</span>, COD: <span class="n">110</span>, TSS: <span class="n">50</span>, TN: <span class="n">35</span>, TP: <span class="n">9</span>,
+    EC: <span class="n">3.2</span>, Na: <span class="n">250</span>, heavy_metals: <span class="n">0.12</span>, flow_rate: <span class="n">500</span>
+  })
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+
+console.<span class="f">log</span>(result.wqi.wqi);                      <span class="c">// WQI score</span>
+console.<span class="f">log</span>(result.deviation.nonCompliantParams);  <span class="c">// ['BOD', 'TSS']</span>
+console.<span class="f">log</span>(result.optimization.selectedUpgrades);  <span class="c">// MILP upgrades</span>
+console.<span class="f">log</span>(result.energy.total_power_kW);          <span class="c">// kW</span></pre>
+        <div class="code-label">Response Shape</div>
+<pre>{
+  <span class="s">"simulationId"</span>: <span class="s">"uuid"</span>,
+  <span class="s">"wqi"</span>: { <span class="s">"wqi"</span>: <span class="n">112</span>, <span class="s">"interpretation"</span>: <span class="s">"Poor"</span> },
+  <span class="s">"deviation"</span>: { <span class="s">"nonCompliantParams"</span>: [<span class="s">"BOD"</span>], <span class="s">"deviations"</span>: { <span class="s">"BOD"</span>: <span class="n">15</span> } },
+  <span class="s">"sizing"</span>: { <span class="s">"biological"</span>: { <span class="s">"hrt_hours"</span>: <span class="n">3.22</span>, <span class="s">"reactor_volume_m3"</span>: <span class="n">1610</span> } },
+  <span class="s">"energy"</span>: { <span class="s">"total_power_kW"</span>: <span class="n">24.8</span>, <span class="s">"sec_kWh_per_m3"</span>: <span class="n">0.05</span> },
+  <span class="s">"optimization"</span>: { <span class="s">"feasible"</span>: <span class="k">true</span>, <span class="s">"selectedUpgrades"</span>: [ <span class="c">/* ... */</span> ] },
+  <span class="s">"recommendations"</span>: [ <span class="c">/* urgency-sorted array */</span> ]
+}</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="simulations">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/simulations <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">List all past simulation runs with WQI and input snapshot.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Query Parameters</div>
+        <table><thead><tr><th>Param</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>limit</td><td><code>50</code></td><td>Max rows</td></tr>
+          <tr><td>offset</td><td><code>0</code></td><td>Pagination offset</td></tr>
+        </tbody></table>
+        <div class="code-label">Example</div>
+<pre><span class="k">const</span> { simulations, total } = <span class="k">await</span> <span class="f">fetch</span>(
+  <span class="s">'/api/admin/simulations?limit=10&amp;offset=0'</span>,
+  { headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> } }
+).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+
+<span class="k">for</span> (<span class="k">const</span> sim <span class="k">of</span> simulations) {
+  <span class="k">const</span> result = <span class="f">JSON.parse</span>(sim.result_json);
+  console.<span class="f">log</span>(sim.id, result.wqi.wqi);
+}</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="sim-id">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/simulations/:id <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">Full detail for a single simulation, including parsed input and result objects.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example</div>
+<pre><span class="k">const</span> sim = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">`/api/admin/simulations/<span class="n">${simId}</span>`</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+<span class="c">// sim.input  → original plant data
+// sim.result → full analysis pipeline output</span></pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="recalculate">
+      <div class="endpoint-head">
+        <span class="method-badge POST">POST</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/recalculate <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">"What-if" analysis — runs the full pipeline with optional config overrides (different standards or weights). Does <strong>not</strong> persist a simulation record.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example — Override BOD standard</div>
+<pre><span class="k">const</span> result = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/admin/recalculate'</span>, {
+  method: <span class="s">'POST'</span>,
+  headers: {
+    <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span>,
+    <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span>
+  },
+  body: <span class="f">JSON.stringify</span>({
+    plantData: { BOD: <span class="n">55</span>, COD: <span class="n">110</span>, TSS: <span class="n">50</span>, flow_rate: <span class="n">500</span> <span class="c">/* ... */</span> },
+    configOverrides: {
+      standards: { BOD: <span class="n">50</span> }  <span class="c">// temporarily relax standard to 50 mg/L</span>
+    }
+  })
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="admin-readings">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/readings <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">Full sensor data for any date range, ascending order. Includes min/avg/max statistics per parameter. Supports up to 5000 rows.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Query Parameters</div>
+        <table><thead><tr><th>Param</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>from</td><td>—</td><td>ISO 8601 start datetime</td></tr>
+          <tr><td>to</td><td>now</td><td>ISO 8601 end datetime</td></tr>
+          <tr><td>hours</td><td><code>24</code></td><td>Fallback if from/to not set</td></tr>
+          <tr><td>limit</td><td><code>1000</code></td><td>Max rows (hard cap 5000)</td></tr>
+        </tbody></table>
+        <div class="code-label">Example — Date range query</div>
+<pre><span class="k">const</span> qs = <span class="k">new</span> <span class="f">URLSearchParams</span>({
+  from: <span class="s">'2026-03-18T00:00:00Z'</span>,
+  to:   <span class="s">'2026-03-18T23:59:59Z'</span>,
+  limit: <span class="s">'500'</span>
+});
+<span class="k">const</span> { readings, stats } = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">`/api/admin/readings?<span class="n">${qs}</span>`</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+
+console.<span class="f">log</span>(stats.BOD);  <span class="c">// { min: 32, avg: 46.1, max: 67 }</span></pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="logs">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/logs <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">System event log — logins, simulations, recalculations, config changes. Filterable by event type and date range.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="params-label">Query Parameters</div>
+        <table><thead><tr><th>Param</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>type</td><td><code>LOGIN</code> · <code>SIMULATION</code> · <code>RECALCULATION</code> · <code>CONFIG_UPDATE</code></td></tr>
+          <tr><td>from</td><td>ISO 8601 start date filter</td></tr>
+          <tr><td>to</td><td>ISO 8601 end date filter</td></tr>
+          <tr><td>limit</td><td>Max rows (default 100)</td></tr>
+          <tr><td>offset</td><td>Pagination offset (default 0)</td></tr>
+        </tbody></table>
+        <div class="code-label">Example</div>
+<pre><span class="c">// Get all simulations performed today</span>
+<span class="k">const</span> { events } = <span class="k">await</span> <span class="f">fetch</span>(
+  <span class="s">'/api/admin/logs?type=SIMULATION&amp;limit=50'</span>,
+  { headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> } }
+).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());</pre>
+      </div>
+    </div>
+
+    <div class="endpoint" id="config-get">
+      <div class="endpoint-head">
+        <span class="method-badge GET">GET</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/config <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">Returns all system configuration: regulatory standards, AHP weights, kinetic constants, optimization weights.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example</div>
+<pre><span class="k">const</span> { config } = <span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/admin/config'</span>, {
+  headers: { <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span> }
+}).<span class="f">then</span>(r =&gt; r.<span class="f">json</span>());
+<span class="c">// config → [{ key: 'standards_BOD', value: '40', description: '...' }, ...]</span></pre>
+        <div class="code-label">Key Prefixes</div>
+        <table><thead><tr><th>Prefix</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>standards_</td><td>Regulatory limits (Egyptian Code)</td></tr>
+          <tr><td>lod_</td><td>Limits of Detection</td></tr>
+          <tr><td>weight_</td><td>AHP weights for WQI (must sum to 1)</td></tr>
+          <tr><td>k_</td><td>Kinetic constants</td></tr>
+          <tr><td>membrane_</td><td>UF/RO membrane flux values</td></tr>
+          <tr><td>opt_</td><td>MILP optimization weights (α, β, γ)</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="endpoint" id="config-put">
+      <div class="endpoint-head">
+        <span class="method-badge PUT">PUT</span>
+        <div class="endpoint-info">
+          <div class="endpoint-path">/api/admin/config <span class="role-badge role-admin">admin</span></div>
+          <div class="endpoint-desc">Update one or more configuration values. Change is persisted and logged in the event log.</div>
+        </div>
+      </div>
+      <div class="endpoint-body">
+        <div class="code-label">Example — Tighten BOD standard &amp; adjust weight</div>
+<pre><span class="k">await</span> <span class="f">fetch</span>(<span class="s">'/api/admin/config'</span>, {
+  method: <span class="s">'PUT'</span>,
+  headers: {
+    <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span>,
+    <span class="s">'Authorization'</span>: <span class="s">`Bearer <span class="n">${token}</span>`</span>
+  },
+  body: <span class="f">JSON.stringify</span>({
+    standards_BOD: <span class="s">'30'</span>,       <span class="c">// tighten BOD limit to 30 mg/L</span>
+    weight_BOD: <span class="s">'0.25'</span>,        <span class="c">// increase BOD weight in WQI</span>
+    opt_alpha: <span class="s">'0.5'</span>           <span class="c">// increase cost weight in MILP</span>
+  })
+});</pre>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>
