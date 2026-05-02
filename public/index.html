@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Decision-Support Tool for municipal wastewater treatment plant monitoring, compliance analysis, and optimization">
-    <title>Water Purification DST — Dashboard</title>
+    <title>ReWater — Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -28,17 +28,17 @@
                             </defs>
                         </svg>
                     </div>
-                    <h1>Water Purification DST</h1>
+                    <h1>ReWater</h1>
                     <p class="subtitle">Decision-Support Tool for Wastewater Treatment</p>
                 </div>
                 <form id="login-form" class="login-form">
                     <div class="form-group">
                         <label for="username">Username</label>
-                        <input type="text" id="username" placeholder="Enter username" required autocomplete="username">
+                        <input type="text" id="username" placeholder="Enter username" required autocomplete="username" value="admin">
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password">
+                        <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password" value="admin123">
                     </div>
                     <button type="submit" id="login-btn" class="btn btn-primary btn-full">Sign In</button>
                     <p id="login-error" class="error-text"></p>
@@ -67,7 +67,7 @@
                         </defs>
                     </svg>
                 </div>
-                <span class="app-title">Water DST <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem;"><a href="api-docs.html" target="_blank" style="color:inherit;">API Docs ↗</a></span></span>
+                <span class="app-title">ReWater <span style="font-size:0.7rem;color:var(--text-muted);font-weight:400;margin-left:0.5rem;"><a href="api-docs.html" target="_blank" style="color:inherit;">API Docs ↗</a></span></span>
             </div>
             <nav class="nav-tabs" id="nav-tabs">
                 <button class="nav-tab active" data-view="dashboard" id="nav-dashboard">Dashboard</button>
@@ -181,43 +181,43 @@
                             <div class="sim-grid">
                                 <div class="form-group">
                                     <label for="sim-BOD">BOD (mg/L)</label>
-                                    <input type="number" id="sim-BOD" step="0.1" value="55" min="0">
+                                    <input type="number" id="sim-BOD" step="0.01" value="55.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-COD">COD (mg/L)</label>
-                                    <input type="number" id="sim-COD" step="0.1" value="110" min="0">
+                                    <input type="number" id="sim-COD" step="0.01" value="110.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-TSS">TSS (mg/L)</label>
-                                    <input type="number" id="sim-TSS" step="0.1" value="50" min="0">
+                                    <input type="number" id="sim-TSS" step="0.01" value="50.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-TN">TN (mg/L)</label>
-                                    <input type="number" id="sim-TN" step="0.1" value="35" min="0">
+                                    <input type="number" id="sim-TN" step="0.01" value="35.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-TP">TP (mg/L)</label>
-                                    <input type="number" id="sim-TP" step="0.1" value="9" min="0">
+                                    <input type="number" id="sim-TP" step="0.01" value="9.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-EC">EC (dS/m)</label>
-                                    <input type="number" id="sim-EC" step="0.01" value="3.2" min="0">
+                                    <input type="number" id="sim-EC" step="0.01" value="3.20" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-Na">Na (mg/L)</label>
-                                    <input type="number" id="sim-Na" step="1" value="250" min="0">
+                                    <input type="number" id="sim-Na" step="0.01" value="250.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-heavy_metals">Heavy Metals (mg/L)</label>
-                                    <input type="number" id="sim-heavy_metals" step="0.001" value="0.12" min="0">
+                                    <input type="number" id="sim-heavy_metals" step="0.01" value="0.12" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-flow_rate">Flow Rate (m³/h)</label>
-                                    <input type="number" id="sim-flow_rate" step="1" value="500" min="0">
+                                    <input type="number" id="sim-flow_rate" step="0.01" value="500.00" min="0">
                                 </div>
                                 <div class="form-group">
                                     <label for="sim-pathogens">Pathogens (CFU/100mL)</label>
-                                    <input type="number" id="sim-pathogens" step="1" value="5000" min="0">
+                                    <input type="number" id="sim-pathogens" step="0.01" value="5000.00" min="0">
                                 </div>
                             </div>
                             <div class="form-actions">

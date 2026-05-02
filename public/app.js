@@ -1,5 +1,5 @@
 /**
- * Water Purification DST — Frontend Application
+ * ReWater — Frontend Application
  */
 (function () {
     'use strict';
@@ -27,6 +27,11 @@
 
     function $(sel) { return document.querySelector(sel); }
     function $$(sel) { return document.querySelectorAll(sel); }
+
+    function formatSimulationValue(value) {
+        const numeric = Number(value);
+        return Number.isFinite(numeric) ? numeric.toFixed(2) : '';
+    }
 
     // ---- Auth ----
     $('#login-form').addEventListener('submit', async (e) => {
@@ -415,7 +420,7 @@
                 const r = dashboard.reading;
                 const fields = ['BOD', 'COD', 'TSS', 'TN', 'TP', 'EC', 'Na', 'heavy_metals', 'flow_rate', 'pathogens'];
                 for (const f of fields) {
-                    if (r[f] !== undefined) $(`#sim-${f}`).value = r[f];
+                    if (r[f] !== undefined) $(`#sim-${f}`).value = formatSimulationValue(r[f]);
                 }
             }
         } catch (err) {

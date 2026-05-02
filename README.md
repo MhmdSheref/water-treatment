@@ -1,4 +1,4 @@
-# Water Purification Decision-Support Tool (DST)
+# ReWater
 
 A comprehensive backend and frontend system for monitoring, simulating, and optimizing water purification plants. The tool features real-time sensor data logging, compliance checking against regulatory standards (like the Egyptian Code for Water Reuse), Water Quality Index (WQI) calculation, process sizing, and energy optimization.
 

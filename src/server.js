@@ -1,5 +1,5 @@
 /**
- * Water Purification Decision-Support Tool — Server Entry Point
+ * ReWater — Server Entry Point
  */
 const express = require('express');
 const cors = require('cors');
@@ -74,7 +74,7 @@ app.use((err, req, res, next) => {
 const PORT = parseInt(process.env.PORT);
 app.listen(PORT, () => {
     console.log(`\n${'='.repeat(60)}`);
-    console.log('  Water Purification DST — Server Running');
+    console.log('  ReWater — Server Running');
     console.log(`${'='.repeat(60)}`);
     console.log(`  URL:          http://localhost:${PORT}`);
     console.log(`  Sensor Mode:  ${process.env.SENSOR_MODE}`);
